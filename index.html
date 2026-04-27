@@ -34,7 +34,7 @@
 <div class='card saved'><input id='busca' placeholder='Buscar histórico...' style='margin-bottom:10px'><div class='row'><div class='small'>Orçamentos salvos</div><button onclick='limparSalvos()' style='padding:8px 10px;border:none;border-radius:10px;background:#ff453a;color:#fff'>Limpar tudo</button></div><div id='lista'></div></div><div class='footer'><span id='ver'></span></div>
 </div>
 <script>
-const APP_VERSION = '1.2';
+const APP_VERSION = '2.0';
 const ids=['fil','g','h','w','k','d','o','l'];
 document.addEventListener('change',e=>{if(e.target.id==='perfilFil')document.getElementById('fil').value=e.target.value;if(e.target.id==='perfilImp')document.getElementById('w').value=e.target.value;calc();});
 function v(id){return Math.max(0,parseFloat(document.getElementById(id).value)||0)}
