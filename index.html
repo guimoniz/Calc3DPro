@@ -31,11 +31,13 @@
 </div>
 <div class='card' id='res'></div><div class='card'><div class='small'>Preço sugerido</div><div id='heroTotal' class='highlight'>R$ 0,00</div></div>
 <div class='btns'><button class='btn' onclick='calc()'>Calcular</button><button class='btn alt' onclick='limpar()'>Limpar</button><button class='btn green' onclick='salvar()'>Salvar</button></div>
-<div class='card saved'><div class='row'><div class='small'>Orçamentos salvos</div><button onclick='limparSalvos()' style='padding:8px 10px;border:none;border-radius:10px;background:#ff453a;color:#fff'>Limpar tudo</button></div><div id='lista'></div></div><div class='footer'>Adicione à Tela Inicial no Safari</div>
+<div class='card saved'><div class='row'><div class='small'>Orçamentos salvos</div><button onclick='limparSalvos()' style='padding:8px 10px;border:none;border-radius:10px;background:#ff453a;color:#fff'>Limpar tudo</button></div><div id='lista'></div></div><div class='footer'>Adicione à Tela Inicial no Safari<br><span id='ver'></span></div>
 </div>
 <script>
+const APP_VERSION = '1.1';
 const ids=['fil','g','h','w','k','d','o','l'];
 function v(id){return Math.max(0,parseFloat(document.getElementById(id).value)||0)}
+document.addEventListener('DOMContentLoaded',()=>{const el=document.getElementById('ver');if(el)el.textContent='Versão: '+APP_VERSION;});
 function br(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
 function calc(){let fil=v('fil'),g=v('g'),h=v('h'),w=v('w'),k=v('k'),d=v('d'),o=v('o'),l=v('l');let cf=(fil/1000)*g;let ce=(w/1000)*h*k;let cd=h*d;let total=cf+ce+cd+o;let final=total+(total*l/100);let lucro=final-total;window.last={cf,ce,cd,total,final,lucro};document.getElementById('res').innerHTML=`<div class='result'><span>Filamento</span><b>${br(cf)}</b></div><div class='result'><span>Energia</span><b>${br(ce)}</b></div><div class='result'><span>Depreciação</span><b>${br(cd)}</b></div><div class='result'><span>Outros custos</span><b>${br(o)}</b></div><div class='result'><span>Custo total</span><b>${br(total)}</b></div><div class='result'><span>Venda sugerida</span><b>${br(final)}</b></div><div class='result'><span>Lucro</span><b style='color:#30d158'>${br(lucro)}</b></div>`;document.getElementById('heroTotal').textContent=br(final);localStorage.setItem('defaults',JSON.stringify(Object.fromEntries(ids.map(i=>[i,document.getElementById(i).value]))));}
 function limpar(){document.querySelectorAll('input').forEach(x=>x.value='');document.getElementById('fil').value=99;document.getElementById('w').value=65;document.getElementById('k').value=.72;document.getElementById('d').value=.5;document.getElementById('o').value=0;document.getElementById('l').value=200;calc()}
@@ -48,4 +50,30 @@ function del(i){let arr=JSON.parse(localStorage.getItem('orc'));arr.splice(i,1);
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 window.addEventListener('load',()=>{setTimeout(()=>{const s=document.getElementById('splash');if(s){s.style.opacity='0';setTimeout(()=>s.remove(),650)}},1200)});
 </script></body></html>
-
+<!-- manifest.json
+{
+  "name":"Calc 3D Pro",
+  "short_name":"Calc 3D",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#000000",
+  "theme_color":"#000000",
+  "icons":[{"src":"icon.png","sizes":"1024x1024","type":"image/png"}]
+}
+-->
+<!-- sw.js
+const CACHE='calc3d-v2';
+const ASSETS=['./','./index.html','./icon.png'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim());});
+self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return res;}).catch(()=>caches.match(e.request)));});
+-->
+<!-- DEPLOY iPhone:
+1. Baixe index.html do Canvas.
+2. Crie manifest.json com o bloco acima.
+3. Crie sw.js com o bloco acima.
+4. Salve icon.png.
+5. Envie os 4 arquivos ao Netlify Drop ou GitHub Pages.
+6. Abra no Safari.
+7. Compartilhar > Adicionar à Tela de Início.
+-->
