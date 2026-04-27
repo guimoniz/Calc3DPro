@@ -54,8 +54,8 @@ select,
 button{
   width:100%;
   max-width:100%;
-  box-sizing:border-box;
   padding:12px;
+  min-height:48px;
   border:none;
   border-radius:14px;
   background:var(--card2);
@@ -78,7 +78,7 @@ button{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
-  margin-top:10px;
+  margin-top:12px;
 }
 
 .blue{
@@ -113,6 +113,8 @@ button{
   padding:8px;
 }
 
+/* MODAL */
+
 #modal{
   display:none;
   position:fixed;
@@ -129,18 +131,32 @@ button{
   max-width:380px;
   background:var(--card);
   border-radius:24px;
-  padding:16px;
-  overflow:hidden;
+  padding:18px;
 }
+
+#modalTitulo{
+  margin:0 0 14px 0;
+  font-size:20px;
+}
+
+.modal-field{
+  margin-bottom:12px;
+}
+
+.modal-field input{
+  margin:0;
+}
+
 </style>
 </head>
 
 <body>
+
 <div class="wrap">
 
   <div class="card">
     <label>Nome da peça</label>
-    <input id="nome" placeholder="Ex: Suporte celular">
+    <input id="nome">
 
     <div class="grid">
       <div>
@@ -157,12 +173,12 @@ button{
     <div class="grid">
       <div>
         <label>Gramas usadas</label>
-        <input id="gramas" type="number" placeholder="0">
+        <input id="gramas" type="number">
       </div>
 
       <div>
         <label>Horas</label>
-        <input id="horas" type="number" placeholder="0">
+        <input id="horas" type="number">
       </div>
 
       <div>
@@ -204,14 +220,20 @@ button{
 
 </div>
 
-<!-- Modal -->
+<!-- MODAL -->
+
 <div id="modal">
   <div id="modalBox">
 
     <h3 id="modalTitulo"></h3>
 
-    <input id="campo1">
-    <input id="campo2">
+    <div class="modal-field">
+      <input id="campo1">
+    </div>
+
+    <div class="modal-field">
+      <input id="campo2">
+    </div>
 
     <div class="btns">
       <button class="red" onclick="fecharModal()">Cancelar</button>
@@ -222,195 +244,7 @@ button{
 </div>
 
 <script>
-const APP_VERSION = "2.5.1";
-
-let tipoCadastro = "";
-let ultimoCalculo = null;
-
-/* =========================
-   Inicialização
-========================= */
-function iniciar(){
-  if(!localStorage.getItem("filamentos")){
-    localStorage.setItem(
-      "filamentos",
-      JSON.stringify([
-        { nome:"PLA", valor:99 },
-        { nome:"PETG", valor:129 }
-      ])
-    );
-  }
-
-  if(!localStorage.getItem("impressoras")){
-    localStorage.setItem(
-      "impressoras",
-      JSON.stringify([
-        { nome:"A1 Mini", consumo:65 },
-        { nome:"Ender 3", consumo:120 }
-      ])
-    );
-  }
-
-  if(!localStorage.getItem("historico")){
-    localStorage.setItem("historico","[]");
-  }
-
-  carregarSelects();
-  renderHistorico();
-}
-
-/* =========================
-   Utilidades
-========================= */
-function moeda(valor){
-  return valor.toLocaleString(
-    "pt-BR",
-    {
-      style:"currency",
-      currency:"BRL"
-    }
-  );
-}
-
-/* =========================
-   Carregar selects
-========================= */
-function carregarSelects(){
-
-  const filamentos =
-    JSON.parse(localStorage.getItem("filamentos"));
-
-  const impressoras =
-    JSON.parse(localStorage.getItem("impressoras"));
-
-  filSel.innerHTML =
-    filamentos.map(item =>
-      `<option value="${item.valor}">
-        ${item.nome} - R$${item.valor}
-      </option>`
-    ).join("");
-
-  impSel.innerHTML =
-    impressoras.map(item =>
-      `<option value="${item.consumo}">
-        ${item.nome} - ${item.consumo}W
-      </option>`
-    ).join("");
-}
-
-/* =========================
-   Calcular
-========================= */
-function calcular(){
-
-  const valorKg =
-    parseFloat(filSel.value || 0);
-
-  const gramas =
-    parseFloat(
-      document.getElementById("gramas").value || 0
-    );
-
-  const horas =
-    parseFloat(
-      document.getElementById("horas").value || 0
-    );
-
-  const consumo =
-    parseFloat(impSel.value || 0);
-
-  const kwh =
-    parseFloat(
-      document.getElementById("kwh").value || 0
-    );
-
-  const lucro =
-    parseFloat(
-      document.getElementById("lucro").value || 0
-    );
-
-  const custoFilamento =
-    (valorKg / 1000) * gramas;
-
-  const custoEnergia =
-    (consumo / 1000) * horas * kwh;
-
-  const custoTotal =
-    custoFilamento + custoEnergia;
-
-  const venda =
-    custoTotal + (custoTotal * lucro / 100);
-
-  ultimoCalculo = {
-    nome:
-      document.getElementById("nome").value ||
-      "Peça sem nome",
-    custo:custoTotal,
-    venda:venda
-  };
-
-  resultado.innerHTML = `
-    <div class="result">
-      <span>Custo</span>
-      <b>${moeda(custoTotal)}</b>
-    </div>
-
-    <div class="result">
-      <span>Venda</span>
-      <b>${moeda(venda)}</b>
-    </div>
-  `;
-}
-
-/* =========================
-   Salvar orçamento
-========================= */
-function salvarOrcamento(){
-
-  calcular();
-
-  let lista =
-    JSON.parse(localStorage.getItem("historico"));
-
-  lista.unshift(ultimoCalculo);
-
-  localStorage.setItem(
-    "historico",
-    JSON.stringify(lista)
-  );
-
-  renderHistorico();
-}
-
-/* =========================
-   Histórico
-========================= */
-function renderHistorico(){
-
-  const lista =
-    JSON.parse(localStorage.getItem("historico"));
-
-  if(lista.length === 0){
-    historico.innerHTML =
-      "<div class='small'>Nenhum orçamento salvo</div>";
-    return;
-  }
-
-  historico.innerHTML =
-    lista.map(item => `
-      <div class="result">
-        <span>${item.nome}</span>
-        <b>${moeda(item.venda)}</b>
-      </div>
-    `).join("");
-}
-
-/* =========================
-   Modal
-========================= */
 function abrirModal(tipo){
-
-  tipoCadastro = tipo;
 
   modal.style.display = "flex";
 
@@ -418,21 +252,15 @@ function abrirModal(tipo){
   campo2.value = "";
 
   if(tipo === "filamento"){
-    modalTitulo.textContent =
-      "Novo Filamento";
-
+    modalTitulo.textContent = "Novo Filamento";
     campo1.placeholder = "Nome";
     campo2.placeholder = "Valor";
-    campo2.type = "number";
   }
 
   if(tipo === "impressora"){
-    modalTitulo.textContent =
-      "Nova Impressora";
-
+    modalTitulo.textContent = "Nova Impressora";
     campo1.placeholder = "Modelo";
     campo2.placeholder = "Consumo em watts";
-    campo2.type = "number";
   }
 }
 
@@ -440,61 +268,10 @@ function fecharModal(){
   modal.style.display = "none";
 }
 
-/* =========================
-   Salvar cadastro
-========================= */
 function salvarCadastro(){
-
-  const a = campo1.value.trim();
-  const b = campo2.value.trim();
-
-  if(!a || !b){
-    alert("Preencha todos os campos");
-    return;
-  }
-
-  if(tipoCadastro === "filamento"){
-
-    let lista =
-      JSON.parse(
-        localStorage.getItem("filamentos")
-      );
-
-    lista.push({
-      nome:a,
-      valor:parseFloat(b)
-    });
-
-    localStorage.setItem(
-      "filamentos",
-      JSON.stringify(lista)
-    );
-  }
-
-  if(tipoCadastro === "impressora"){
-
-    let lista =
-      JSON.parse(
-        localStorage.getItem("impressoras")
-      );
-
-    lista.push({
-      nome:a,
-      consumo:parseFloat(b)
-    });
-
-    localStorage.setItem(
-      "impressoras",
-      JSON.stringify(lista)
-    );
-  }
-
-  carregarSelects();
   fecharModal();
 }
-
-/* ========================= */
-iniciar();
 </script>
+
 </body>
 </html>
