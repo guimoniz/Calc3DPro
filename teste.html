@@ -1,1 +1,121 @@
-<!DOCTYPE html><html lang='pt-BR'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Calc3DPro Beta 2.5</title><style>body{margin:0;background:#000;color:#fff;font-family:-apple-system,sans-serif}.wrap{max-width:430px;margin:auto;padding:14px}.card{background:#1c1c1e;border-radius:22px;padding:14px;margin-bottom:12px}input,select,button{width:100%;padding:12px;border:none;border-radius:14px;background:#2c2c2e;color:#fff;margin-top:8px}button{background:#0a84ff;font-weight:700}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.footer{text-align:center;color:#999;font-size:12px}#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px}#box{background:#1c1c1e;border-radius:24px;padding:16px;max-width:380px;width:100%}.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}</style></head><body><div class='wrap'><div class='card'><h3>Cadastros Premium</h3><div class='row'><button onclick='abrir("fil")'>+ Filamento</button><button onclick='abrir("imp")'>+ Impressora</button></div></div><div class='footer'>Versão 2.5 Premium UX</div></div><div id='modal'><div id='box'><h3 id='tit'></h3><input id='c1'><input id='c2'><div class='btns'><button onclick='fechar()' style='background:#ff453a'>Cancelar</button><button onclick='salvar()' style='background:#30d158'>Salvar</button></div></div></div><script>let tipo='';function abrir(t){tipo=t;modal.style.display='flex';c1.value='';c2.value='';if(t==='fil'){tit.textContent='Novo Filamento';c1.placeholder='Nome';c2.placeholder='Valor'}else{tit.textContent='Nova Impressora';c1.placeholder='Modelo';c2.placeholder='Consumo em watts'}}function fechar(){modal.style.display='none'}function salvar(){if(!c1.value||!c2.value)return alert('Preencha todos os campos');alert('Cadastro salvo com sucesso');fechar()}</script></body></html>
+<!DOCTYPE html>
+<html lang='pt-BR'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>Calc3DPro Beta 2.5.1</title>
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#fff;
+  font-family:-apple-system,sans-serif;
+}
+.wrap{
+  max-width:430px;
+  margin:auto;
+  padding:14px;
+}
+.card{
+  background:#1c1c1e;
+  border-radius:22px;
+  padding:14px;
+  margin-bottom:12px;
+}
+input,button{
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+  padding:12px;
+  border:none;
+  border-radius:14px;
+  background:#2c2c2e;
+  color:#fff;
+  margin-top:8px;
+}
+button{
+  background:#0a84ff;
+  font-weight:700;
+}
+.row,.btns{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.footer{
+  text-align:center;
+  color:#999;
+  font-size:12px;
+}
+#modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+#box{
+  width:100%;
+  max-width:380px;
+  background:#1c1c1e;
+  border-radius:24px;
+  padding:16px;
+  overflow:hidden;
+}
+</style>
+</head>
+<body>
+<div class='wrap'>
+  <div class='card'>
+    <h3>Cadastros Premium</h3>
+    <div class='row'>
+      <button onclick="abrir('fil')">+ Filamento</button>
+      <button onclick="abrir('imp')">+ Impressora</button>
+    </div>
+  </div>
+  <div class='footer'>Versão 2.5.1 Premium UX</div>
+</div>
+<div id='modal'>
+  <div id='box'>
+    <h3 id='tit'></h3>
+    <input id='c1'>
+    <input id='c2'>
+    <div class='btns'>
+      <button onclick='fechar()' style='background:#ff453a'>Cancelar</button>
+      <button onclick='salvar()' style='background:#30d158'>Salvar</button>
+    </div>
+  </div>
+</div>
+<script>
+let tipo='';
+function abrir(t){
+  tipo=t;
+  modal.style.display='flex';
+  c1.value='';
+  c2.value='';
+  if(t==='fil'){
+    tit.textContent='Novo Filamento';
+    c1.placeholder='Nome';
+    c2.placeholder='Valor';
+  }else{
+    tit.textContent='Nova Impressora';
+    c1.placeholder='Modelo';
+    c2.placeholder='Consumo em watts';
+  }
+}
+function fechar(){
+  modal.style.display='none';
+}
+function salvar(){
+  if(!c1.value || !c2.value){
+    alert('Preencha todos os campos');
+    return;
+  }
+  alert('Cadastro salvo com sucesso');
+  fechar();
+}
+</script>
+</body>
+</html>
