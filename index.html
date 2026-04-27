@@ -17,7 +17,7 @@
 </head><body><div id='splash'><img src='icon.png' class='logo'><div class='pulse'>Calc 3D Pro</div><div class='spinner'></div></div><div class='wrap'>
 <h1>Calculadora 3D</h1>
 <div class='card'>
-<label>Nome da peça</label><input id='nome' placeholder='Ex. Suporte de celular'><div class='grid' style='margin-top:10px'><div><label>Filamento</label><select id='perfilFil'></select><button class='btn alt' style='margin-top:6px' onclick='novoFilamento()'>+ Filamento</button></div><div><label>Impressora</label><select id='perfilImp'></select><button class='btn alt' style='margin-top:6px' onclick='novaImpressora()'>+ Impressora</button></div></div>
+<label>Nome da peça</label><input id='nome' placeholder='Ex. Suporte de celular'><div class='grid' style='margin-top:10px'><div><label>Filamento</label><select id='perfilFil'></select><div class='btns' style='margin-top:6px'><button class='btn alt' onclick='novoFilamento()'>+ Filamento</button><button class='btn green' onclick='gerirFilamentos()'>Gerenciar</button></div></div><div><label>Impressora</label><select id='perfilImp'></select><div class='btns' style='margin-top:6px'><button class='btn alt' onclick='novaImpressora()'>+ Impressora</button><button class='btn green' onclick='gerirImpressoras()'>Gerenciar</button></div></div></div>
 <div class='grid'>
 <div><label>Valor filamento (R$)</label><input id='fil' type='number' step='0.01' value='99'></div>
 <div><label>Gramas usadas</label><input id='g' type='number' step='0.01'></div>
@@ -31,15 +31,28 @@
 </div>
 <div class='card' id='res'></div><div class='card'><div class='small'>Preço sugerido</div><div id='heroTotal' class='highlight'>R$ 0,00</div></div>
 <div class='btns'><button class='btn' onclick='calc()'>Calcular</button><button class='btn alt' onclick='limpar()'>Limpar</button><button class='btn green' onclick='salvar()'>Salvar</button></div>
-<div class='card saved'><input id='busca' placeholder='Buscar histórico...' style='margin-bottom:10px'><div class='row'><div class='small'>Orçamentos salvos</div><button onclick='limparSalvos()' style='padding:8px 10px;border:none;border-radius:10px;background:#ff453a;color:#fff'>Limpar tudo</button></div><div id='lista'></div></div><div class='footer'><span id='ver'></span></div>
+<div class='card saved'><input id='busca' placeholder='Buscar histórico...' style='margin-bottom:10px'><div class='row'><div class='small'>Orçamentos salvos</div><button onclick='limparSalvos()' style='padding:8px 10px;border:none;border-radius:10px;background:#ff453a;color:#fff'>Limpar tudo</button></div><div id='lista'></div></div><div class='footer'><span id='ver'></span></div><div id='modal' style='display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center;padding:20px'><div style='width:100%;max-width:380px;background:#1c1c1e;border-radius:24px;padding:16px'><div id='mtitulo' style='font-weight:700;font-size:18px;margin-bottom:10px'></div><input id='m1' placeholder='' style='margin-bottom:10px'><input id='m2' placeholder='' style='margin-bottom:12px'><div class='btns'><button class='btn alt' onclick='fecharModal()'>Cancelar</button><button class='btn green' onclick='salvarModal()'>Salvar</button></div></div></div>
 </div>
 <script>
-const APP_VERSION = '2.1';
+const APP_VERSION = '2.3';
 const ids=['fil','g','h','w','k','d','o','l'];
 document.addEventListener('change',e=>{if(e.target.id==='perfilFil')document.getElementById('fil').value=e.target.value;if(e.target.id==='perfilImp')document.getElementById('w').value=e.target.value;calc();});
 function carregarPerfis(){let fs=JSON.parse(localStorage.getItem('fils')||'[{"n":"PLA Padrão","v":"99"},{"n":"PETG","v":"129"},{"n":"ABS","v":"149"}]');let ps=JSON.parse(localStorage.getItem('imps')||'[{"n":"A1 Mini","v":"65"},{"n":"Ender 3","v":"120"},{"n":"K1","v":"250"}]');perfilFil.innerHTML=fs.map(x=>`<option value='${x.v}'>${x.n} - R$${x.v}</option>`).join('');perfilImp.innerHTML=ps.map(x=>`<option value='${x.v}'>${x.n} - ${x.v}W</option>`).join('');}
-function novoFilamento(){let n=prompt('Nome do filamento:');if(!n)return;let v=prompt('Valor:');if(v==null)return;let fs=JSON.parse(localStorage.getItem('fils')||'[]');fs.push({n,v});localStorage.setItem('fils',JSON.stringify(fs));carregarPerfis();}
-function novaImpressora(){let n=prompt('Modelo da impressora:');if(!n)return;let v=prompt('Consumo em watts:');if(v==null)return;let ps=JSON.parse(localStorage.getItem('imps')||'[]');ps.push({n,v});localStorage.setItem('imps',JSON.stringify(ps));carregarPerfis();}
+function abrirModal(tipo){window.modalTipo=tipo;modal.style.display='flex';m1.value='';m2.value='';if(tipo==='fil'){mtitulo.textContent='Novo Filamento';m1.placeholder='Nome';m2.placeholder='Valor';}else{mtitulo.textContent='Nova Impressora';m1.placeholder='Modelo';m2.placeholder='Consumo em watts';}m1.focus();}
+function fecharModal(){modal.style.display='none';}
+function salvarModal(){let a=m1.value.trim(),b=m2.value.trim();if(!a||!b)return alert('Preencha todos os campos');if(window.modalTipo==='fil'){let fs=JSON.parse(localStorage.getItem('fils')||'[]');fs.push({n:a,v:b});localStorage.setItem('fils',JSON.stringify(fs));}else{let ps=JSON.parse(localStorage.getItem('imps')||'[]');ps.push({n:a,v:b});localStorage.setItem('imps',JSON.stringify(ps));}carregarPerfis();fecharModal();}
+function novoFilamento(){abrirModal('fil');}
+function novaImpressora(){abrirModal('imp');}
+function gerirFilamentos(){let fs=JSON.parse(localStorage.getItem('fils')||'[]');let txt=fs.map((x,i)=>`${i+1}. ${x.n} - R$${x.v}`).join('
+');let n=prompt('Filamentos cadastrados:
+'+txt+'
+
+Digite número para excluir:');if(!n)return;let i=parseInt(n)-1;if(i>=0&&fs[i]){fs.splice(i,1);localStorage.setItem('fils',JSON.stringify(fs));carregarPerfis();}}
+function gerirImpressoras(){let ps=JSON.parse(localStorage.getItem('imps')||'[]');let txt=ps.map((x,i)=>`${i+1}. ${x.n} - ${x.v}W`).join('
+');let n=prompt('Impressoras cadastradas:
+'+txt+'
+
+Digite número para excluir:');if(!n)return;let i=parseInt(n)-1;if(i>=0&&ps[i]){ps.splice(i,1);localStorage.setItem('imps',JSON.stringify(ps));carregarPerfis();}}
 function v(id){return Math.max(0,parseFloat(document.getElementById(id).value)||0)}
 document.addEventListener('DOMContentLoaded',()=>{const el=document.getElementById('ver');if(el)el.textContent='Versão: '+APP_VERSION;});
 function br(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
@@ -54,3 +67,30 @@ function del(i){let arr=JSON.parse(localStorage.getItem('orc'));arr.splice(i,1);
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 window.addEventListener('load',()=>{setTimeout(()=>{const s=document.getElementById('splash');if(s){s.style.opacity='0';setTimeout(()=>s.remove(),650)}},1200)});
 </script></body></html>
+<!-- manifest.json
+{
+  "name":"Calc 3D Pro",
+  "short_name":"Calc 3D",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#000000",
+  "theme_color":"#000000",
+  "icons":[{"src":"icon.png","sizes":"1024x1024","type":"image/png"}]
+}
+-->
+<!-- sw.js
+const CACHE='calc3d-v2';
+const ASSETS=['./','./index.html','./icon.png'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim());});
+self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return res;}).catch(()=>caches.match(e.request)));});
+-->
+<!-- DEPLOY iPhone:
+1. Baixe index.html do Canvas.
+2. Crie manifest.json com o bloco acima.
+3. Crie sw.js com o bloco acima.
+4. Salve icon.png.
+5. Envie os 4 arquivos ao Netlify Drop ou GitHub Pages.
+6. Abra no Safari.
+7. Compartilhar > Adicionar à Tela de Início.
+-->
